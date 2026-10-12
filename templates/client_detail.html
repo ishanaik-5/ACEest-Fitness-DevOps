@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}{{ client.name }} | ACEest Fitness{% endblock %}
+{% block content %}
+<a class="back-link" href="{{ url_for('dashboard') }}">← Back to dashboard</a>
+<section class="detail-hero"><div><p class="eyebrow">CLIENT PROFILE</p><h1>{{ client.name }}</h1><p>Member since {{ client.created_at[:10] }}</p></div><span class="pill {{ client.membership_status|lower }}">{{ client.membership_status }} membership</span></section>
+<section class="stats detail-stats">
+  <article class="stat"><span class="stat-label">Age</span><strong>{{ client.age }}</strong><span class="stat-note">Years</span></article>
+  <article class="stat"><span class="stat-label">Current weight</span><strong>{{ '%.1f'|format(client.weight_kg) }}</strong><span class="stat-note">Kilograms</span></article>
+  <article class="stat"><span class="stat-label">Estimated calories</span><strong>{{ client.calories }}</strong><span class="stat-note">Demonstration estimate</span></article>
+  <article class="stat"><span class="stat-label">Target adherence</span><strong>{{ client.target_adherence }}%</strong><span class="stat-note">Weekly goal</span></article>
+</section>
+<div class="content-grid">
+  <section class="panel"><div class="section-heading"><div><p class="eyebrow">FITNESS PLAN</p><h2>Programme</h2></div></div>
+    <div class="programme-box"><span class="programme-symbol">✦</span><div><strong>{{ client.program or 'No programme assigned' }}</strong><p>{{ 'Current suggested fitness programme' if client.program else 'Generate a programme category to assign a suggested plan.' }}</p></div></div>
+    {% if g.current_user.role == 'Admin' %}<form method="post" action="{{ url_for('generate_program', client_id=client.id) }}" class="inline-form"><select name="program_type"><option>Beginner</option><option>Fat Loss</option><option>Muscle Gain</option></select><button class="button" type="submit">Generate programme</button></form>
+    <div class="detail-list"><div><span>Height</span><strong>{{ '%.1f'|format(client.height_cm) }} cm</strong></div><div><span>Target weight</span><strong>{{ (client.target_weight_kg|string + ' kg') if client.target_weight_kg else 'Not set' }}</strong></div><div><span>Membership end</span><strong>{{ client.membership_end or 'Not set' }}</strong></div></div>
+    <a class="button button-muted full-button" href="{{ url_for('edit_client', client_id=client.id) }}">Edit client details</a>
+    <a class="button button-muted full-button" href="{{ url_for('client_report', client_id=client.id) }}">Download PDF report</a>
+    <form method="post" action="{{ url_for('delete_client', client_id=client.id) }}" onsubmit="return confirm('Delete this client and all associated workout/progress records?');"><button class="button button-danger full-button" type="submit">Delete client</button></form>{% endif %}
+  </section>
+  <section class="panel"><div class="section-heading"><div><p class="eyebrow">ACTIVITY</p><h2>Record a workout</h2></div></div>
+    <form method="post" action="{{ url_for('add_workout', client_id=client.id) }}" class="stack-form">
+      <label>Date<input type="date" name="workout_date" required value="{{ today or '' }}"></label>
+      <label>Workout type<input name="workout_type" maxlength="80" required placeholder="e.g. Strength training"></label>
+      <label>Duration (minutes)<input type="number" name="duration_min" min="1" max="600" required></label>
+      <label>Notes<textarea name="notes" maxlength="500" rows="2" placeholder="Optional notes"></textarea></label>
+      <button class="button" type="submit">Save workout</button>
+    </form>
+  </section>
+</div>
+<section class="panel"><div class="section-heading"><div><p class="eyebrow">TRAINING HISTORY</p><h2>Recent workouts</h2></div><span class="count-label">{{ workouts|length }} sessions</span></div>
+{% if workouts %}<div class="table-wrap"><table><thead><tr><th>Date</th><th>Workout</th><th>Duration</th><th>Notes</th></tr></thead><tbody>{% for workout in workouts %}<tr><td>{{ workout.workout_date }}</td><td>{{ workout.workout_type }}</td><td>{{ workout.duration_min }} min</td><td>{{ workout.notes or '—' }}</td></tr>{% endfor %}</tbody></table></div>{% else %}<p class="muted">No workouts recorded yet.</p>{% endif %}</section>
+<section class="panel"><div class="section-heading"><div><p class="eyebrow">EXERCISE LOG</p><h2>Exercises</h2></div><span class="count-label">{{ exercises|length }} entries</span></div>
+{% if workouts %}
+<form method="post" action="{{ url_for('add_exercise', client_id=client.id) }}" class="inline-form progress-form">
+  <label>Workout<select name="workout_id" required>{% for workout in workouts %}<option value="{{ workout.id }}">{{ workout.workout_date }} — {{ workout.workout_type }}</option>{% endfor %}</select></label>
+  <label>Exercise name<input name="exercise_name" maxlength="100" required placeholder="e.g. Squat"></label>
+  <label>Sets<input type="number" name="sets" min="1" max="100" required></label>
+  <label>Reps<input type="number" name="reps" min="1" max="1000" required></label>
+  <label>Weight (kg, optional)<input type="number" name="weight_kg" min="0" max="1000" step="0.1"></label>
+  <button class="button" type="submit">Save exercise</button>
+</form>
+{% else %}<p class="muted">Record a workout first, then add exercises to it.</p>{% endif %}
+{% if exercises %}<div class="table-wrap"><table><thead><tr><th>Date</th><th>Workout</th><th>Exercise</th><th>Sets × Reps</th><th>Weight</th></tr></thead><tbody>{% for item in exercises %}<tr><td>{{ item.workout_date }}</td><td>{{ item.workout_type }}</td><td>{{ item.name }}</td><td>{{ item.sets }} × {{ item.reps }}</td><td>{{ (item.weight_kg|string + ' kg') if item.weight_kg is not none else '—' }}</td></tr>{% endfor %}</tbody></table></div>{% else %}<p class="muted">No exercises recorded yet.</p>{% endif %}
+</section>
+<section class="panel"><div class="section-heading"><div><p class="eyebrow">BODY METRICS</p><h2>Measurements history</h2></div><span class="count-label">{{ metrics|length }} entries</span></div>
+<form method="post" action="{{ url_for('add_metric', client_id=client.id) }}" class="inline-form progress-form">
+  <label>Date<input type="date" name="metric_date" value="{{ today }}" required></label>
+  <label>Weight (kg)<input type="number" name="weight_kg" min="1" max="500" step="0.1" value="{{ client.weight_kg }}" required></label>
+  <label>Waist (cm, optional)<input type="number" name="waist_cm" min="1" max="300" step="0.1"></label>
+  <label>Body fat % (optional)<input type="number" name="body_fat_pct" min="0" max="100" step="0.1"></label>
+  <button class="button" type="submit">Save measurements</button>
+</form>
+{% if metrics %}<div class="table-wrap"><table><thead><tr><th>Date</th><th>Weight (kg)</th><th>Waist (cm)</th><th>Body fat (%)</th></tr></thead><tbody>{% for item in metrics %}<tr><td>{{ item.metric_date }}</td><td>{{ '%.1f'|format(item.weight_kg) }}</td><td>{{ ('%.1f'|format(item.waist_cm)) if item.waist_cm is not none else '—' }}</td><td>{{ ('%.1f'|format(item.body_fat_pct)) if item.body_fat_pct is not none else '—' }}</td></tr>{% endfor %}</tbody></table></div>{% else %}<p class="muted">No body measurements recorded yet.</p>{% endif %}
+</section>
+<section class="panel"><div class="section-heading"><div><p class="eyebrow">WEEKLY CHECK-IN</p><h2>Progress &amp; adherence</h2></div></div>
+<form method="post" action="{{ url_for('add_progress', client_id=client.id) }}" class="inline-form progress-form"><label>Week / period<input name="week_label" maxlength="30" required placeholder="e.g. Week 1"></label><label>Adherence (%)<input name="adherence" type="number" min="0" max="100" required></label><button class="button" type="submit">Add progress</button></form>
+{% if progress %}
+<div class="progress-list">{% for item in progress %}<div class="progress-row"><span>{{ item.week_label }}</span><div class="progress-track"><span style="width: {{ item.adherence }}%"></span></div><strong>{{ item.adherence }}%</strong></div>{% endfor %}</div>
+<div class="adherence-chart-wrap">
+  <h3>Weekly adherence chart</h3>
+  <p class="muted">Most recent 12 entries · adherence from 0% to 100%</p>
+  <svg class="adherence-chart" viewBox="0 0 600 220" role="img" aria-label="Line chart showing weekly adherence percentages">
+    {% for tick in [0, 25, 50, 75, 100] %}
+      <line x1="40" y1="{{ 180 - tick * 1.4 }}" x2="560" y2="{{ 180 - tick * 1.4 }}" class="chart-gridline" />
+      <text x="30" y="{{ 184 - tick * 1.4 }}" text-anchor="end" class="chart-axis-label">{{ tick }}%</text>
+    {% endfor %}
+    {% if chart_points|length > 1 %}<polyline class="chart-line" points="{% for point in chart_points %}{{ point.x }},{{ point.y }}{% if not loop.last %} {% endif %}{% endfor %}" />{% endif %}
+    {% for point in chart_points %}<circle cx="{{ point.x }}" cy="{{ point.y }}" r="4" class="chart-point"><title>{{ point.label }}: {{ point.adherence }}%</title></circle>{% endfor %}
+  </svg>
+  <div class="chart-labels">{% for point in chart_points %}<span>{{ point.label }}<strong>{{ point.adherence }}%</strong></span>{% endfor %}</div>
+</div>
+{% else %}<p class="muted">No progress entries recorded yet. Add a weekly check-in to start the chart.</p>{% endif %}
+</section>
+{% endblock %}

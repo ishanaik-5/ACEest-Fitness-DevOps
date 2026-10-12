@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit client' if editing else 'Register client' }} | ACEest Fitness{% endblock %}
+{% block content %}
+<section class="page-heading"><p class="eyebrow">MEMBER DIRECTORY</p><h1>{{ 'Edit client details' if editing else 'Register a client' }}</h1><p>Keep member details and membership information up to date.</p></section>
+<form class="panel form-panel" method="post">
+  <div class="form-grid">
+    <label>Full name<input name="name" maxlength="100" required value="{{ client.get('name', '') }}" placeholder="e.g. Aanya Sharma"></label>
+    <label>Age<input name="age" type="number" min="1" max="120" required value="{{ client.get('age', '') }}"></label>
+    <label>Height (cm)<input name="height_cm" type="number" min="30" max="260" step="0.1" required value="{{ client.get('height_cm', '') }}"></label>
+    <label>Weight (kg)<input name="weight_kg" type="number" min="1" max="500" step="0.1" required value="{{ client.get('weight_kg', '') }}"></label>
+    <label>Target weight (kg)<input name="target_weight_kg" type="number" min="1" max="500" step="0.1" value="{{ client.get('target_weight_kg', '') or '' }}" placeholder="Optional"></label>
+    <label>Target adherence (%)<input name="target_adherence" type="number" min="0" max="100" value="{{ client.get('target_adherence', 80) }}" required></label>
+    <label>Membership status<select name="membership_status"><option {% if client.get('membership_status', 'Active') == 'Active' %}selected{% endif %}>Active</option><option {% if client.get('membership_status') == 'Inactive' %}selected{% endif %}>Inactive</option><option {% if client.get('membership_status') == 'Expired' %}selected{% endif %}>Expired</option></select></label>
+    <label>Membership end date<input name="membership_end" type="date" value="{{ client.get('membership_end', '') or '' }}"></label>
+  </div>
+  <p class="helper">The calorie figure is a simple demonstration estimate, not medical or nutritional advice.</p>
+  <div class="form-actions"><a class="button button-muted" href="{{ url_for('client_detail', client_id=client.get('id')) if editing else url_for('dashboard') }}">Cancel</a><button class="button" type="submit">{{ 'Save changes' if editing else 'Register client' }}</button></div>
+</form>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Login | ACEest Fitness{% endblock %}
+{% block content %}
+<section class="login-shell">
+  <div class="login-card panel">
+    <p class="eyebrow">ACEEST FITNESS &amp; GYM</p>
+    <h1>Welcome back</h1>
+    <p class="muted">Sign in to manage clients, programmes and training progress.</p>
+    <form method="post" action="{{ url_for('login_post', next=request.args.get('next', '')) }}" class="stack-form login-form">
+      <label>Username<input name="username" autocomplete="username" required autofocus></label>
+      <label>Password<input type="password" name="password" autocomplete="current-password" required></label>
+      <button class="button full-button" type="submit">Sign in</button>
+    </form>
+    <p class="login-help">Demo accounts are listed in the project README. Change the default passwords before using this outside a local assignment demo.</p>
+  </div>
+</section>
+{% endblock %}

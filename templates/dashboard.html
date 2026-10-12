@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | ACEest Fitness{% endblock %}
+{% block content %}
+<section class="hero">
+  <div><p class="eyebrow">FITNESS MANAGEMENT</p><h1>Build consistency.<br><span>Track progress.</span></h1><p class="hero-copy">Manage clients, programmes, memberships and workout progress in one place.</p></div>
+  {% if g.current_user.role == 'Admin' %}<a class="button button-light" href="{{ url_for('new_client') }}">＋ Register a client</a>{% endif %}
+</section>
+<section class="stats">
+  <article class="stat"><span class="stat-label">Total clients</span><strong>{{ clients|length }}</strong><span class="stat-note">Registered members</span></article>
+  <article class="stat"><span class="stat-label">Active memberships</span><strong>{{ active_memberships }}</strong><span class="stat-note">Currently active</span></article>
+  <article class="stat"><span class="stat-label">Workout sessions</span><strong>{{ total_workouts }}</strong><span class="stat-note">Recorded sessions</span></article>
+  <article class="stat"><span class="stat-label">Progress entries</span><strong>{{ progress_count }}</strong><span class="stat-note">Adherence records</span></article>
+</section>
+<section class="panel">
+  <div class="section-heading"><div><p class="eyebrow">MEMBER DIRECTORY</p><h2>Clients</h2></div>{% if g.current_user.role == 'Admin' %}<a class="text-link" href="{{ url_for('new_client') }}">＋ Add client</a>{% endif %}</div>
+  {% if clients %}
+  <div class="table-wrap"><table><thead><tr><th>Client</th><th>Programme</th><th>Membership</th><th>Weight</th><th>Target adherence</th><th></th></tr></thead><tbody>
+  {% for client in clients %}<tr><td><a class="client-name" href="{{ url_for('client_detail', client_id=client.id) }}">{{ client.name }}</a><span class="subline">Age {{ client.age }}</span></td><td>{{ client.program or 'Not assigned' }}</td><td><span class="pill {{ client.membership_status|lower }}">{{ client.membership_status }}</span></td><td>{{ '%.1f'|format(client.weight_kg) }} kg</td><td>{{ client.target_adherence }}%</td><td><a class="text-link" href="{{ url_for('client_detail', client_id=client.id) }}">View →</a></td></tr>{% endfor %}
+  </tbody></table></div>
+  {% else %}<div class="empty"><div class="empty-icon">＋</div><h3>Your client list starts here</h3><p>Add a client to start managing fitness programmes and workout progress.</p>{% if g.current_user.role == 'Admin' %}<a class="button" href="{{ url_for('new_client') }}">Register first client</a>{% endif %}</div>{% endif %}
+</section>
+<section class="info-grid"><article class="info-card"><span class="info-icon">◎</span><h3>Programmes</h3><p>Generate a suggested programme using the categories from the original ACEest application.</p></article><article class="info-card"><span class="info-icon">↗</span><h3>Progress tracking</h3><p>Record weekly adherence and workout sessions for each client.</p></article><article class="info-card"><span class="info-icon">▤</span><h3>Client reports</h3><p>Export client details, recent workouts and progress as a PDF report.</p></article></section>
+{% endblock %}

@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}ACEest Fitness & Gym{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="{{ url_for('dashboard') }}"><span class="brand-mark">A</span><span>ACEest <small>FITNESS &amp; GYM</small></span></a>
+  <nav>
+  {% if g.current_user %}<a href="{{ url_for('dashboard') }}">Dashboard</a>{% if g.current_user.role == 'Admin' %}<a href="{{ url_for('new_client') }}">Add client</a>{% endif %}<span class="user-chip">{{ g.current_user.username }} · {{ g.current_user.role }}</span><form class="nav-logout" method="post" action="{{ url_for('logout') }}"><button type="submit">Log out</button></form>{% endif %}
+</nav>
+</header>
+<main class="container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}<div class="flash-stack">{% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}</div>{% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+<footer class="footer">ACEest Fitness &amp; Gym <span>DevOps Assignment 1 · Flask · SQLite</span></footer>
+</body>
+</html>
