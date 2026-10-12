@@ -1,0 +1,38 @@
+name: ACEest Fitness CI Pipeline
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build, syntax check, Docker and tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Check Python syntax
+        run: python -m compileall -q app.py tests
+
+      - name: Run tests on the runner
+        run: python -m pytest -v
+
+      - name: Build Docker image
+        run: docker build --tag aceest-fitness:ci .
+
+      - name: Run Pytest inside Docker container
+        run: docker run --rm aceest-fitness:ci python -m pytest -v -p no:cacheprovider
