@@ -1,0 +1,17 @@
+Validation record for this generated archive
+============================================
+
+Passed:
+- Python syntax compilation: python -m compileall -q app.py tests
+- ZIP archive integrity check (performed after packaging)
+- Static review of route/template names and SQLite schema changes
+
+Not run in this environment:
+- Full Pytest suite
+- Docker image build / tests inside Docker
+- Jenkins build
+- GitHub Actions run
+
+Reason: Python dependencies (Flask, fpdf2, pytest) could not be installed in the packaging environment because package index/network access was unavailable. Run `python -m pip install -r requirements.txt` and `python -m pytest -v` locally, then verify Docker and CI before submission.
+
+The project includes tests for authentication, role restrictions, client CRUD, programme generation, workout logging, exercise logging, body metrics validation/history, progress charting, PDF reporting, deletion and health checks. This file does not claim that those tests passed in this environment.
