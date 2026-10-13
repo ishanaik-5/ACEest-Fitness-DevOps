@@ -40,12 +40,16 @@ ACEest-Fitness-DevOps/
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-source .venv/bin/activate (Linux terminal)
 python -m pip install -r requirements.txt
 python app.py
 ```
-
-Open <http://127.0.0.1:5000>. On first startup, Flask creates `instance/aceest_fitness.db` and seeds two demo users if they do not already exist.
+**Linux** 
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python app.py
+```
 
 ### Demo accounts
 
@@ -87,7 +91,3 @@ python -m pytest -v
 - **Docker:** builds a minimal Python image and runs Gunicorn as a non-root user.
 - **GitHub Actions:** runs on every push and pull request; installs dependencies, checks syntax, runs Pytest, builds Docker and runs Pytest in the image.
 - **Jenkins:** The `Jenkinsfile` checks out the GitHub repository, creates a Python virtual environment, installs dependencies, checks Python syntax, runs Pytest and builds the Docker image tagged `aceest-fitness:jenkins`. The Jenkins agent requires Git, Python 3, pip, virtual-environment support and Docker Engine access. The Workspace Cleanup plugin is required for `cleanWs()`.
-
-## Notes
-
-The calorie number is a basic demonstration estimate, not medical advice. Programme generation randomly chooses a static template. This project is for coursework and should receive a security review before production use.
