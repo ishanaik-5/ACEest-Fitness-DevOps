@@ -3,3 +3,7 @@ fpdf2>=2.8,<3.0
 pytest>=8.0,<10.0
 gunicorn>=23.0,<24.0
 pytest-cov
+<<<<<<< HEAD
+=======
+pytest-cov>=5.0
+>>>>>>> 33f5f83 (Integrate SonarQube analysis and quality gate)
