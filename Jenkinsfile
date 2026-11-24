@@ -66,6 +66,40 @@ pipeline {
                 sh 'docker build --tag aceest-fitness:jenkins .'
             }
         }
+
+        stage('Tag Docker Image') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-credentials',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                        docker tag aceest-fitness:jenkins \
+                        "$DOCKER_USER/aceest-fitness:v1.1.0"
+                    '''
+                }
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-credentials',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login \
+                        -u "$DOCKER_USER" --password-stdin
+
+                        docker push "$DOCKER_USER/aceest-fitness:v1.1.0"
+
+                        docker logout
+                    '''
+                }
+            }
+        }
     }
 
     post {
