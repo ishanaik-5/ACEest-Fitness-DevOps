@@ -14,6 +14,8 @@ from flask import (Flask, abort, flash, g, redirect, render_template, request,
 from fpdf import FPDF
 from werkzeug.security import check_password_hash, generate_password_hash
 
+APP_VERSION = os.getenv("APP_VERSION", "1.0.0")
+
 PROGRAM_TEMPLATES = {
     "Fat Loss": ["Full Body HIIT", "Circuit Training", "Cardio + Weights"],
     "Muscle Gain": ["Push/Pull/Legs", "Upper/Lower Split", "Full Body Strength"],
@@ -197,6 +199,31 @@ def create_app(test_config: dict | None = None) -> Flask:
     @app.get("/health")
     def health():
         return {"status": "healthy", "application": "ACEest Fitness & Gym"}, 200
+    
+    @app.get("/version")
+    def version():
+        return {
+            "application": "ACEest Fitness & Gym",
+            "version": APP_VERSION
+        }, 200
+
+    @app.get("/health/live")
+    def liveness():
+        return {"status": "alive"}, 200
+
+    @app.get("/health/ready")
+    def readiness():
+        db = None
+        try:
+            db = connect_db()
+            db.execute("SELECT 1").fetchone()
+            return {"status": "ready"}, 200
+        except sqlite3.Error:
+            app.logger.exception("Database readiness check failed")
+            return {"status": "not_ready"}, 503
+        finally:
+            if db is not None:
+                db.close()
 
     @app.get("/clients")
     @login_required
