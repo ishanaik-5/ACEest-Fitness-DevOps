@@ -3,7 +3,7 @@
 
 ## 1. Introduction
 
-This document maintains the version history of the ACEest Fitness & Gym application for DevOps Assignment 2.
+This document maintains the version history of the ACEest Fitness & Gym application for DevOps Assignment-2.
 
 The application versions supplied with the assignment are retained as reference implementations to understand the evolution of the fitness and gym management system.
 
