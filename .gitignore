@@ -7,3 +7,4 @@ instance/*.db-journal
 .coverage
 htmlcov/
 .env
+coverage.xml
